@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import Airtable, { FieldSet, Records } from "airtable";
-import { UserType } from "~/type";
+import { RegisterSuccessType, UserType } from "~/type";
 
 // Define the shape of your context
 interface AirTableType {
@@ -29,24 +29,36 @@ export const useAirTable = () => {
 export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [value, setValue] = useState<Records<FieldSet> | null>(null);
+  const [value, _] = useState<Records<FieldSet> | null>(null);
 
   useEffect(() => {}, []);
 
   const createUser = (userData: FieldSet) => {
-    airtable("User").create(
-      [
-        {
-          fields: userData,
-        },
-      ],
-      (err) => {
-        if (err) {
-          console.error(err);
-          return;
+    return new Promise<RegisterSuccessType>((resolve, reject) => {
+      airtable("User").create(
+        [
+          {
+            fields: userData,
+          },
+        ],
+        (err) => {
+          if (err) {
+            console.error(err);
+            reject({ success: false, user: {} as UserType });
+          } else {
+            resolve({
+              success: true,
+              user: {
+                email: userData.Email as string,
+                password: userData.Password as string,
+                name: userData.Name as string,
+                type: "Customer",
+              } as UserType,
+            });
+          }
         }
-      }
-    );
+      );
+    });
   };
 
   const loginUser = (email: string, password: string) => {

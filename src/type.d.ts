@@ -4,3 +4,8 @@ export interface UserType {
   type: string;
   password: string;
 }
+
+export interface RegisterSuccessType {
+  success: boolean;
+  user: UserType;
+}

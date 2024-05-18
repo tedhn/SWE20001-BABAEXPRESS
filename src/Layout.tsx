@@ -1,6 +1,6 @@
 import { Container } from "@mantine/core";
 import { Outlet } from "react-router-dom";
-import NavBar from "./Navbar/NavBar";
+import NavBar from "./Components/Navbar/NavBar";
 import { Suspense } from "react";
 
 const LayoutContainer = () => {

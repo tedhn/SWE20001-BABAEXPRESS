@@ -8,7 +8,7 @@ const NavBar = () => {
     <div className="h-16 flex justify-between items-center">
       <div>BaBa Express</div>
 
-      <div>
+      <div className="flex justify-center items-center">
         <div
           className="font-bold text-xs hover:underline cursor-pointer"
           onClick={() => navigate("/register")}

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { UserType } from "~/type";
 
 // Define the shape of your context
@@ -26,6 +26,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<Omit<UserType, "password"> | undefined>(
     undefined
   );
+
+  useEffect(() => {
+    setUser(JSON.parse(localStorage.getItem("user") as string));
+  }, []);
 
   const updateUser = (newUser: Omit<UserType, "password">) => {
     setUser(newUser);
