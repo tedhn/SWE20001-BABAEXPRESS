@@ -6,7 +6,7 @@ import { useUser } from "~/Context/UserContext";
 const NavBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user  , updateUser} = useUser();
+  const { user, updateUser } = useUser();
 
   const [active, setActive] = useState(location.pathname.split("/")[1]);
 
@@ -24,7 +24,7 @@ const NavBar = () => {
   };
 
   return (
-    <div className="h-20 flex justify-between items-center">
+    <div className=" h-20 px-4 flex justify-between items-center ">
       {/* <div className="flex justify-start items-baseline gap-8"> */}
       <div
         className="text-2xl font-bold cursor-pointer"
@@ -56,8 +56,8 @@ const NavBar = () => {
             radius={"md"}
             color="#3b82f6"
             onClick={() => {
-              navigate("/login");
-              updateUser(undefined)
+              navigate("/dashboard");
+              updateUser(undefined);
             }}
           >
             Log out
@@ -65,7 +65,7 @@ const NavBar = () => {
         ) : (
           <>
             <div
-              className="font-bold text-xs hover:underline cursor-pointer"
+              className="font-bold text-xs hover:underline cursor-pointer "
               onClick={() => navigate("/register")}
             >
               Sign Up
@@ -96,7 +96,7 @@ const CustomNavLink = ({
 }) => (
   <a
     key={routeName}
-    className="inline-block leading-4 py-2 px-3 text-gray-700  text-sm font-medium border-2 border-transparent hover:underline rounded-md cursor-pointer"
+    className="inline-block leading-4 py-2 px-3 text-gray-700  text-sm font-medium border-2 border-transparent hover:underline rounded-md cursor-pointer hover:bg-gray-200 w-fit p-2"
     style={
       active === routeName.toLowerCase().replace(" ", "-")
         ? { background: "#3b82f6", color: "#f9fafb" }

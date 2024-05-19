@@ -50,13 +50,29 @@ const MyTickets = () => {
 
   return (
     <div className="flex flex-col justify-center items-center gap-4">
-      {tickets.map((ticket) => (
-        <TicketCard
-          ticket={ticket}
-          key={ticket.ticket_id}
-          setSelectedTicket={setSelectedTicket}
-        />
-      ))}
+      <Text className="mx-auto text-3xl font-bold">My Tickets</Text>
+      {tickets.length === 0 ? (
+        <div>
+          <div className="text-xl py-8">Start booking now!</div>
+          <Button
+            size="xs"
+            loading={isLoading}
+            disabled={isLoading}
+            onClick={() => navigate("/routes")}
+            className="bg-blue-500 mx-auto w-full"
+          >
+            Book Now
+          </Button>
+        </div>
+      ) : (
+        tickets.map((ticket) => (
+          <TicketCard
+            ticket={ticket}
+            key={ticket.ticket_id}
+            setSelectedTicket={setSelectedTicket}
+          />
+        ))
+      )}
 
       {user && selectedTicket && (
         <Modal
@@ -111,10 +127,10 @@ const MyTickets = () => {
               fullWidth
               loading={isLoading}
               disabled={isLoading}
-              // onClick={() => handleConfirmBooking()}
+              onClick={() => close()}
               className="bg-blue-500"
             >
-              Confirm
+              Close
             </Button>
           </Paper>
         </Modal>

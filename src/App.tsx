@@ -9,6 +9,7 @@ const Dashboard = lazy(() => import("./Pages/Dashboard"));
 const Route = lazy(() => import("./Pages/Route/Route"));
 const RouteDetails = lazy(() => import("./Pages/Route/RouteDetails"));
 const MyTickets = lazy(() => import("./Pages/Tickets/MyTickets"));
+const RouteCreate = lazy(() => import("./Pages/Route/RouteCreate"));
 
 const SusWrapper = ({ component }: { component: React.ReactNode }) => {
   return <Suspense fallback={<div>Loading...</div>}>{component}</Suspense>;
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
         path: "routes",
         children: [
           { path: "", element: <SusWrapper component={<Route />} /> },
+          {
+            path: "create",
+            element: <SusWrapper component={<RouteCreate />} />,
+          },
           {
             path: ":routeId",
             element: <SusWrapper component={<RouteDetails />} />,

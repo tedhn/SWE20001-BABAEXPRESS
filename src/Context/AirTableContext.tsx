@@ -20,6 +20,14 @@ interface AirTableType {
     selectedSeat: string
   ) => Promise<{ success: boolean }>;
   getTickets: (userId: string) => Promise<{ data: TicketType[] }>;
+  createRoute: (query: {
+    from: string;
+    to: string;
+    departureTime: string;
+    estimatedDuration: string;
+    price: string;
+  }) => Promise<{ success: boolean }>;
+  deleteRoute: (routeId: string) => Promise<{ success: boolean }>;
 }
 
 const airtable = new Airtable({
@@ -330,6 +338,55 @@ export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
+  const createRoute = (query: {
+    from: string;
+    to: string;
+    departureTime: string;
+    estimatedDuration: string;
+    price: string;
+  }) => {
+    return new Promise<{ success: boolean }>((resolve, reject) => {
+      airtable("Route").create(
+        [
+          {
+            fields: {
+              Route_Id: uuidv4(),
+              From: query.from,
+              To: query.to,
+              Departure_Time: query.departureTime,
+              Estimated_Duration: query.estimatedDuration,
+              Price: query.price,
+            },
+          },
+        ],
+        (err) => {
+          if (err) {
+            console.error(err);
+
+            reject({ success: false });
+            return;
+          }
+
+          resolve({ success: true });
+        }
+      );
+    });
+  };
+
+  const deleteRoute = (routeId: string) => {
+    return new Promise<{ success: boolean }>((resolve, reject) => {
+      airtable("Route").destroy([routeId], (err, deletedRecords) => {
+        if (err) {
+          reject({ success: false });
+          return;
+        }
+        console.log("Deleted", deletedRecords!.length, "records");
+
+        resolve({ success: true });
+      });
+    });
+  };
+
   return (
     <AirTable.Provider
       value={{
@@ -341,6 +398,8 @@ export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
         createTicket,
         updateRoute,
         getTickets,
+        createRoute,
+        deleteRoute,
       }}
     >
       {children}

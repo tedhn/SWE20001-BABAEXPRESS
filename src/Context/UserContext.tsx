@@ -45,6 +45,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const updateUser = (newUser: Omit<UserType, "password"> | undefined) => {
+    localStorage.removeItem("user");
     setUser(newUser);
   };
 
