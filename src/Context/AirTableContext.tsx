@@ -1,12 +1,24 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import Airtable, { FieldSet, Records } from "airtable";
-import { RegisterSuccessType, UserType } from "~/type";
+import { RegisterSuccessType, RouteType, TicketType, UserType } from "~/type";
 
 // Define the shape of your context
 interface AirTableType {
   value: Records<FieldSet> | null;
   createUser: (userData: FieldSet) => void;
   loginUser: (email: string, password: string) => Promise<UserType>;
+  getRoutes: () => Promise<{ data: RouteType[] }>;
+  findRoute: (id: string) => Promise<{ data: RouteType }>;
+  createTicket: (query: {
+    seatNumbers: string[];
+    userId: string;
+    routeId: string;
+  }) => Promise<{ ticket: TicketType; success: boolean }>;
+  updateRoute: (
+    route: RouteType,
+    selectedSeat: string
+  ) => Promise<{ success: boolean }>;
 }
 
 const airtable = new Airtable({
@@ -38,7 +50,7 @@ export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
       airtable("User").create(
         [
           {
-            fields: userData,
+            fields: { ...userData, User_Id: uuidv4() },
           },
         ],
         (err) => {
@@ -76,6 +88,7 @@ export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
           (pageRecords, fetchNextPage) => {
             pageRecords.forEach((r) => {
               records.push({
+                userId: r.getId() as string,
                 email: r.get("Email") as string,
                 password: r.get("Password") as string,
                 name: r.get("Name") as string,
@@ -94,7 +107,7 @@ export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
                 const isAuth = user.password === password;
 
                 if (isAuth) {
-                  resolve(user);
+                  resolve({ ...user });
                 } else {
                   reject("Wrong Password");
                 }
@@ -109,8 +122,183 @@ export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
+  const getRoutes = () => {
+    const records: RouteType[] = [];
+
+    return new Promise<{ data: RouteType[] }>((resolve, reject) => {
+      airtable("Route")
+        .select({
+          // Specify the desired fields to fetch
+          fields: [
+            "Route_Id",
+            "From",
+            "To",
+            "Departure_Time",
+            "Estimated_Duration",
+            "Price",
+            "Booked_Seats",
+          ],
+          // Additional filters, if any
+          // filterByFormula: '...',
+        })
+        .eachPage(
+          (pageRecords, fetchNextPage) => {
+            pageRecords.forEach((r) => {
+              records.push({
+                route_Id: r.getId() as string,
+                from: r.get("From") as string,
+                to: r.get("To") as string,
+                departure_Time: r.get("Departure_Time") as string,
+                estimated_Duration: r.get("Estimated_Duration") as string,
+                price: r.get("Price") as string,
+                bookedSeats: r.get("Booked_Seats") as string,
+              });
+            });
+            fetchNextPage();
+          },
+          (err) => {
+            if (err) {
+              reject(err);
+              // resolve({ isAuth: false, user: {} as UserType });
+            } else {
+              resolve({ data: records });
+            }
+          }
+        );
+    });
+  };
+
+  const updateRoute = (route: RouteType, selectedSeats: string) => {
+    return new Promise<{ success: boolean }>((resolve, reject) => {
+      airtable("Route").update(
+        [
+          {
+            id: route.route_Id,
+            fields: {
+              Booked_Seats: route.bookedSeats + "," + selectedSeats,
+            },
+          },
+        ],
+        function (err) {
+          if (err) {
+            console.error(err);
+            reject({ success: false });
+
+            return;
+          }
+          resolve({ success: true });
+        }
+      );
+    });
+  };
+
+  const findRoute = (id: string) => {
+    const records: RouteType[] = [];
+
+    return new Promise<{ data: RouteType }>((resolve, reject) => {
+      airtable("Route")
+        .select({
+          // Specify the desired fields to fetch
+          fields: [
+            "Route_Id",
+            "From",
+            "To",
+            "Departure_Time",
+            "Estimated_Duration",
+            "Price",
+            "Booked_Seats",
+          ],
+          // Additional filters, if any
+          // filterByFormula: '...',
+        })
+        .eachPage(
+          (pageRecords, fetchNextPage) => {
+            pageRecords.forEach((r) => {
+              records.push({
+                route_Id: r.getId() as string,
+                from: r.get("From") as string,
+                to: r.get("To") as string,
+                departure_Time: r.get("Departure_Time") as string,
+                estimated_Duration: r.get("Estimated_Duration") as string,
+                price: r.get("Price") as string,
+                bookedSeats: r.get("Booked_Seats") as string,
+              });
+            });
+            fetchNextPage();
+          },
+          (err) => {
+            if (err) {
+              reject(err);
+              // resolve({ isAuth: false, user: {} as UserType });
+            } else {
+              try {
+                const route = records.filter((r) => r.route_Id === id)[0];
+
+                resolve({ data: route });
+              } catch (e) {
+                console.log(e);
+                reject("Record Not Found");
+                // resolve({ isAuth: false, user: {} as UserType });
+              }
+            }
+          }
+        );
+    });
+  };
+
+  const createTicket = (query: {
+    seatNumbers: string[];
+    userId: string;
+    routeId: string;
+  }) => {
+    return new Promise<{ success: boolean; ticket: TicketType }>(
+      (resolve, reject) => {
+        const ticket_id = uuidv4();
+        airtable("Ticket").create(
+          [
+            {
+              fields: {
+                Ticket_Id: ticket_id,
+                SeatNumber: query.seatNumbers.join(","),
+                Route_Id: [query.routeId],
+                User_Id: [query.userId],
+              },
+            },
+          ],
+          (err, record) => {
+            if (err) {
+              console.error(err);
+              reject(err);
+              return;
+            } else {
+              resolve({
+                success: true,
+                ticket: {
+                  ticket_id: record![0].getId(),
+                  seat_numbers: query.seatNumbers.join(","),
+                  user_id: query.userId,
+                  route_id: query.routeId,
+                },
+              });
+            }
+          }
+        );
+      }
+    );
+  };
+
   return (
-    <AirTable.Provider value={{ value, createUser, loginUser }}>
+    <AirTable.Provider
+      value={{
+        value,
+        createUser,
+        loginUser,
+        getRoutes,
+        findRoute,
+        createTicket,
+        updateRoute,
+      }}
+    >
       {children}
     </AirTable.Provider>
   );

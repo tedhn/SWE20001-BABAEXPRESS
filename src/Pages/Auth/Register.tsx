@@ -29,16 +29,21 @@ const Register = () => {
     const { email, name, password } = data;
     setIsLoading(true);
     try {
-      const data = await createUser({
+      createUser({
         Name: name,
         Password: password,
         Email: email,
       });
       const user = await loginUser(email, password);
 
-      updateUser({ name: user.name, email: user.email, type: user.type });
+      updateUser({
+        name: user.name,
+        email: user.email,
+        type: user.type,
+        userId: user.userId,
+      });
       toast.success("User account created successfully");
-      navigate("/dashboard")
+      navigate("/dashboard");
     } catch (e) {
       console.log(e);
       toast.error("Registered failed");
@@ -71,7 +76,13 @@ const Register = () => {
         {...register("password", { required: true })}
         error={errors.password ? "This field is required" : false}
       />
-      <Button variant="filled" loading={isLoading} fullWidth type="submit">
+      <Button
+        variant="filled"
+        loading={isLoading}
+        disabled={isLoading}
+        fullWidth
+        type="submit"
+      >
         Register
       </Button>
 

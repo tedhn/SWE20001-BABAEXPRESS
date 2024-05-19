@@ -1,10 +1,18 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { UserType } from "~/type";
+import React, {
+  SetStateAction,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { TicketType, UserType } from "~/type";
 
 // Define the shape of your context
 interface UserContextType {
   user: Omit<UserType, "password"> | undefined;
   updateUser: (newUser: Omit<UserType, "password">) => void;
+  tickets: TicketType[];
+  setTickets: React.Dispatch<SetStateAction<TicketType[]>>;
 }
 
 // Create the context
@@ -26,14 +34,23 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<Omit<UserType, "password"> | undefined>(
     undefined
   );
+  const [tickets, setTickets] = useState<TicketType[]>([]);
 
   useEffect(() => {
-    setUser(JSON.parse(localStorage.getItem("user") as string));
+    const userString = localStorage.getItem("user");
+
+    if (userString) {
+      setUser(JSON.parse(userString));
+    }
   }, []);
 
   const updateUser = (newUser: Omit<UserType, "password">) => {
     setUser(newUser);
   };
 
-  return <User.Provider value={{ user, updateUser }}>{children}</User.Provider>;
+  return (
+    <User.Provider value={{ user, updateUser, tickets, setTickets }}>
+      {children}
+    </User.Provider>
+  );
 };

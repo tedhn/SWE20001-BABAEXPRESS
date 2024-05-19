@@ -39,7 +39,12 @@ const Login = () => {
     try {
       const user = await loginUser(email, password);
 
-      updateUser({ name: user.name, email: user.email, type: user.type });
+      updateUser({
+        name: user.name,
+        email: user.email,
+        type: user.type,
+        userId: user.userId,
+      });
       toast.success("Logged in successfully");
       localStorage.setItem("user", JSON.stringify(user));
       navigate("/dashboard");
@@ -69,7 +74,13 @@ const Login = () => {
         {...register("password", { required: true })}
         error={errors.email ? "This field is required" : false}
       />
-      <Button variant="filled" fullWidth loading={isLoading} type="submit">
+      <Button
+        variant="filled"
+        fullWidth
+        loading={isLoading}
+        disabled={isLoading}
+        type="submit"
+      >
         Login
       </Button>
       <div className="text-xs flex justify-center items-center gap-1">
