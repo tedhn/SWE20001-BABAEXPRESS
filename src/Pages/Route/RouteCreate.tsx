@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { useAirTable } from "~/Context/AirTableContext";
 import { formatDate } from "~/utils";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const RouteCreate = () => {
   const navigate = useNavigate();
@@ -21,9 +22,10 @@ const RouteCreate = () => {
   }>();
 
   const { createRoute } = useAirTable();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleCreateRoute = async (data: FieldValues) => {
-    console.log(data);
+    setIsLoading(true);
 
     const query = {
       to: data.to,
@@ -38,7 +40,7 @@ const RouteCreate = () => {
 
     try {
       const res = await createRoute(query);
-
+      setIsLoading(false);
       if (res.success) {
         toast.success("Route created successfully.");
         navigate("/routes");
@@ -51,7 +53,10 @@ const RouteCreate = () => {
 
   return (
     <>
-      <div className="flex gap-2 items-center justify-start cursor-pointer rounded-md hover:bg-gray-200 w-fit p-2" onClick={()=> navigate(-1)}>
+      <div
+        className="flex gap-2 items-center justify-start cursor-pointer rounded-md hover:bg-gray-200 w-fit p-2"
+        onClick={() => navigate(-1)}
+      >
         <IconChevronLeft /> Back
       </div>
 
@@ -130,7 +135,12 @@ const RouteCreate = () => {
             error={errors.price && "This field is required."}
           />
         </div>
-        <Button type="submit" className="self-end">
+        <Button
+          type="submit"
+          className="self-end"
+          loading={isLoading}
+          disabled={isLoading}
+        >
           Submit
         </Button>
       </form>

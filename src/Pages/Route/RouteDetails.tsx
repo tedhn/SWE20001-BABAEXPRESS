@@ -21,6 +21,10 @@ const RouteDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+
     (async () => {
       if (params.routeId) {
         const { data } = await findRoute(params.routeId);

@@ -113,12 +113,14 @@ const RouteCard = ({
           <div>Price: {route.price} RM</div>
         </div>
         <div className="flex justify-end items-baseline">
-          <div
-            className="text-blue-800 hover:underline text-sm cursor-pointer rounded-md hover:bg-gray-200 w-fit p-2"
-            onClick={() => handleNavigate(`edit/${route.route_Id}`)}
-          >
-            Edit
-          </div>
+          {user?.type === "Admin" && (
+            <div
+              className="text-blue-800 hover:underline text-sm cursor-pointer rounded-md hover:bg-gray-200 w-fit p-2"
+              onClick={() => handleNavigate(`edit/${route.route_Id}`)}
+            >
+              Edit
+            </div>
+          )}
           <div
             className="text-blue-800 hover:underline text-sm cursor-pointer rounded-md hover:bg-gray-200 w-fit p-2"
             onClick={() => handleNavigate(route.route_Id)}
