@@ -19,6 +19,7 @@ interface AirTableType {
     route: RouteType,
     selectedSeat: string
   ) => Promise<{ success: boolean }>;
+  getTickets: (userId: string) => Promise<{ data: TicketType[] }>;
 }
 
 const airtable = new Airtable({
@@ -259,7 +260,7 @@ export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
             {
               fields: {
                 Ticket_Id: ticket_id,
-                SeatNumber: query.seatNumbers.join(","),
+                SeatNumbers: query.seatNumbers.join(","),
                 Route_Id: [query.routeId],
                 User_Id: [query.userId],
               },
@@ -267,7 +268,6 @@ export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
           ],
           (err, record) => {
             if (err) {
-              console.error(err);
               reject(err);
               return;
             } else {
@@ -287,6 +287,49 @@ export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   };
 
+  const getTickets = (userId: string) => {
+    const records: TicketType[] = [];
+
+    return new Promise<{ data: TicketType[] }>((resolve, reject) => {
+      airtable("Ticket")
+        .select({
+          fields: ["Route_Id", "SeatNumbers", "User_Id"],
+        })
+        .eachPage(
+          (pageRecords, fetchNextPage) => {
+            pageRecords.forEach((r) => {
+              records.push({
+                ticket_id: r.getId(),
+                route_id: r.get("Route_Id") as string,
+                seat_numbers: r.get("SeatNumbers") as string,
+                user_id: r.get("User_Id") as string,
+              });
+            });
+            fetchNextPage();
+          },
+          async (err) => {
+            if (err) {
+              reject(err);
+              // resolve({ isAuth: false, user: {} as UserType });
+            } else {
+              try {
+                // const a: { ticket: TicketType; route: RouteType }[] = [];
+                const userTickets = records.filter(
+                  (r) => r.user_id[0] === userId
+                );
+
+                resolve({ data: userTickets });
+              } catch (e) {
+                console.log(e);
+                reject("Record Not Found");
+                // resolve({ isAuth: false, user: {} as UserType });
+              }
+            }
+          }
+        );
+    });
+  };
+
   return (
     <AirTable.Provider
       value={{
@@ -297,6 +340,7 @@ export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
         findRoute,
         createTicket,
         updateRoute,
+        getTickets,
       }}
     >
       {children}

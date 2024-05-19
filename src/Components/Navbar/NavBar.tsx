@@ -6,7 +6,7 @@ import { useUser } from "~/Context/UserContext";
 const NavBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { user  , updateUser} = useUser();
 
   const [active, setActive] = useState(location.pathname.split("/")[1]);
 
@@ -26,7 +26,12 @@ const NavBar = () => {
   return (
     <div className="h-20 flex justify-between items-center">
       {/* <div className="flex justify-start items-baseline gap-8"> */}
-      <div className="text-2xl font-bold">BaBa Express</div>
+      <div
+        className="text-2xl font-bold cursor-pointer"
+        onClick={() => navigate("/dashboard")}
+      >
+        BaBa Express
+      </div>
 
       <div className="flex justify-center items-center gap-2">
         <CustomNavLink
@@ -45,20 +50,36 @@ const NavBar = () => {
       {/* </div> */}
 
       <div className="flex justify-center items-center gap-4">
-        <div
-          className="font-bold text-xs hover:underline cursor-pointer"
-          onClick={() => navigate("/register")}
-        >
-          Sign Up
-        </div>
-        <Button
-          variant="filled"
-          radius={"md"}
-          color="#3b82f6"
-          onClick={() => navigate("/login")}
-        >
-          Log In
-        </Button>
+        {user ? (
+          <Button
+            variant="filled"
+            radius={"md"}
+            color="#3b82f6"
+            onClick={() => {
+              navigate("/login");
+              updateUser(undefined)
+            }}
+          >
+            Log out
+          </Button>
+        ) : (
+          <>
+            <div
+              className="font-bold text-xs hover:underline cursor-pointer"
+              onClick={() => navigate("/register")}
+            >
+              Sign Up
+            </div>
+            <Button
+              variant="filled"
+              radius={"md"}
+              color="#3b82f6"
+              onClick={() => navigate("/login")}
+            >
+              Log In
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

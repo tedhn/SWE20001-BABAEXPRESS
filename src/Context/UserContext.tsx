@@ -10,7 +10,7 @@ import { TicketType, UserType } from "~/type";
 // Define the shape of your context
 interface UserContextType {
   user: Omit<UserType, "password"> | undefined;
-  updateUser: (newUser: Omit<UserType, "password">) => void;
+  updateUser: (newUser: Omit<UserType, "password"> | undefined) => void;
   tickets: TicketType[];
   setTickets: React.Dispatch<SetStateAction<TicketType[]>>;
 }
@@ -44,7 +44,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  const updateUser = (newUser: Omit<UserType, "password">) => {
+  const updateUser = (newUser: Omit<UserType, "password"> | undefined) => {
     setUser(newUser);
   };
 

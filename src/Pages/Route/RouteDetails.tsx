@@ -101,6 +101,10 @@ const RouteDetails = () => {
             {formatDate(route?.departure_Time!, "h:mm a")}
           </div>
           <div className="mb-4">
+            <span className="font-semibold">Departure Date: </span>
+            {formatDate(route.departure_Time, "dd/MM/YYY")}
+          </div>
+          <div className="mb-4">
             <span className="font-semibold">Estimated Duration: </span>
             {route?.estimated_Duration} Hrs
           </div>
@@ -169,6 +173,10 @@ const RouteDetails = () => {
             <div className="flex justify-between mb-4">
               <Text fw={700}>Departure Time:</Text>
               <Text>{formatDate(route?.departure_Time!, "h:mm a")}</Text>
+            </div>
+            <div className="flex justify-between mb-4">
+              <Text className="font-semibold">Departure Date: </Text>
+              <Text>{formatDate(route.departure_Time, "dd/MM/yyy")}</Text>
             </div>
             <div className="flex justify-between mb-4">
               <Text fw={700}>Seat Number:</Text>

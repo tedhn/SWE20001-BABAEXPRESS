@@ -16,7 +16,7 @@ const SusWrapper = ({ component }: { component: React.ReactNode }) => {
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "",
     element: <LayoutContainer />,
     children: [
       {

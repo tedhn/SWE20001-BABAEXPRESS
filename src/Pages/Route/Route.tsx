@@ -9,19 +9,25 @@ const Route = () => {
   const { getRoutes } = useAirTable();
 
   const [routes, setRoutes] = useState<RouteType[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
     (async () => {
       const { data } = await getRoutes();
 
-      console.log(data);
       setRoutes(data);
+      setIsLoading(false);
     })();
   }, []);
 
   const handleNavigate = (routeId: string) => {
     navigate(`/routes/${routeId}`);
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
@@ -52,6 +58,7 @@ const RouteCard = ({
         <div className="text-gray-500 text-sm">
           Departure Time: {formatDate(route.departure_Time, "hh:mm:ss a")}{" "}
           <br />
+          Departure Date: {formatDate(route.departure_Time, "dd/MM/yyy")} <br />
           Estimated Duration: {route.estimated_Duration} Hrs
           <br />
           <div>Price: {route.price} RM</div>
