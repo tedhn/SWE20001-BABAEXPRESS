@@ -12,7 +12,7 @@ const RouteDetails = () => {
   const navigate = useNavigate();
   const params = useParams();
 
-  const { findRoute, createTicket, updateRoute } = useAirTable();
+  const { findRoute, createTicket, updateBusSeat } = useAirTable();
   const { user, setTickets } = useUser();
 
   const [route, setRoute] = useState<RouteType | null>(null);
@@ -54,7 +54,7 @@ const RouteDetails = () => {
     try {
       const { ticket } = await createTicket(query);
 
-      updateRoute(route!, selectedSeats.join(","));
+      updateBusSeat(route!, selectedSeats.join(","));
 
       setTickets((t) => {
         return { ...t, ticket };

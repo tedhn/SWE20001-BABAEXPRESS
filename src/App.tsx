@@ -10,6 +10,7 @@ const Route = lazy(() => import("./Pages/Route/Route"));
 const RouteDetails = lazy(() => import("./Pages/Route/RouteDetails"));
 const MyTickets = lazy(() => import("./Pages/Tickets/MyTickets"));
 const RouteCreate = lazy(() => import("./Pages/Route/RouteCreate"));
+const RouteEdit = lazy(() => import("./Pages/Route/RouteEdit"));
 
 const SusWrapper = ({ component }: { component: React.ReactNode }) => {
   return <Suspense fallback={<div>Loading...</div>}>{component}</Suspense>;
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
           {
             path: "create",
             element: <SusWrapper component={<RouteCreate />} />,
+          },
+          {
+            path: "edit/:routeId",
+            element: <SusWrapper component={<RouteEdit />} />,
           },
           {
             path: ":routeId",

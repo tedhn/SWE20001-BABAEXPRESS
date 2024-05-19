@@ -1,28 +1,37 @@
-import { useForm, FieldValues } from "react-hook-form";
+import { useParams } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import { TextInput, Button } from "@mantine/core";
 import { IconChevronLeft } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAirTable } from "~/Context/AirTableContext";
 import { formatDate } from "~/utils";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
-const RouteCreate = () => {
+const RouteEdit = () => {
+  const params = useParams();
   const navigate = useNavigate();
+  const { findRoute, updateRoute } = useAirTable();
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<{
     from: string;
     to: string;
     dateTime: string;
     price: string;
     estimatedDuration: string;
-  }>();
+  }>({});
 
-  const { createRoute } = useAirTable();
-
-  const handleCreateRoute = async (data: FieldValues) => {
+  const handleEditRoute = async (data: {
+    from: string;
+    to: string;
+    dateTime: string;
+    price: string;
+    estimatedDuration: string;
+  }) => {
     console.log(data);
 
     const query = {
@@ -34,30 +43,45 @@ const RouteCreate = () => {
         new Date(data.dateTime),
         "yyyy-MM-dd'T'HH:mm:ssXXX"
       ),
+      routeId: params.routeId!,
     };
 
-    try {
-      const res = await createRoute(query);
+    const { success } = await updateRoute(query);
 
-      if (res.success) {
-        toast.success("Route created successfully.");
-        navigate("/routes");
-      }
-    } catch (e) {
-      console.log(e);
-      toast.error("Failed to create new route.");
+    if (success) {
+      toast.success("Route edit successful");
+      navigate("/routes");
+    } else {
+      toast.error("Route edit failed");
     }
   };
 
+  useEffect(() => {
+    if (params.routeId) {
+      (async () => {
+        const { data } = await findRoute(params.routeId!);
+
+        console.log(data);
+        reset({
+          from: data.from,
+          to: data.to,
+          dateTime: formatDate(data.departure_Time, "yyyy-MM-dd'T'HH:mm:ss"),
+          estimatedDuration: data.estimated_Duration,
+          price: data.price,
+        });
+      })();
+    }
+  }, []);
+
   return (
     <>
-      <div className="flex gap-2 items-center justify-start cursor-pointer rounded-md hover:bg-gray-200 w-fit p-2" onClick={()=> navigate(-1)}>
+      <div className="flex gap-2 items-center justify-start cursor-pointer rounded-md hover:bg-gray-200 w-fit p-2">
         <IconChevronLeft /> Back
       </div>
 
       <div className="text-3xl w-full text-center my-8">Create a Route</div>
       <form
-        onSubmit={handleSubmit(handleCreateRoute)}
+        onSubmit={handleSubmit(handleEditRoute)}
         className="flex flex-col justify-center items-center gap-4 w-full lg:w-1/2 mx-auto"
       >
         <div className="mb-4 w-full">
@@ -138,4 +162,4 @@ const RouteCreate = () => {
   );
 };
 
-export default RouteCreate;
+export default RouteEdit;

@@ -22,7 +22,6 @@ const Route = () => {
       const { data } = await getRoutes();
 
       setRoutes(data);
-      console.log(user);
       setIsLoading(false);
     })();
   }, []);
@@ -36,10 +35,9 @@ const Route = () => {
 
     if (success) {
       setRoutes(routes.filter((r) => r.route_Id !== routeId));
-      toast.success("Successfully deleted")
-    }
-    else{
-      toast.error("Delete failed")
+      toast.success("Successfully deleted");
+    } else {
+      toast.error("Delete failed");
     }
   };
 
@@ -117,7 +115,7 @@ const RouteCard = ({
         <div className="flex justify-end items-baseline">
           <div
             className="text-blue-800 hover:underline text-sm cursor-pointer rounded-md hover:bg-gray-200 w-fit p-2"
-            onClick={() => handleNavigate("/")}
+            onClick={() => handleNavigate(`edit/${route.route_Id}`)}
           >
             Edit
           </div>

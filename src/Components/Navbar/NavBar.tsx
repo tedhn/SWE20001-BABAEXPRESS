@@ -39,7 +39,7 @@ const NavBar = () => {
           active={active}
           handleClick={handleRouteChange}
         />
-        {user && (
+        {user && user.type !== "Admin" && (
           <CustomNavLink
             routeName="My Tickets"
             active={active}

@@ -1,19 +1,9 @@
-import { useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import heroImage from "../assets/heroImage.jpg";
 import { useUser } from "~/Context/UserContext";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-
   const { user } = useUser();
-
-  useEffect(() => {
-    if (!user) {
-      console.log("SDFSdf");
-      // navigate("login");
-    }
-  }, []);
 
   return (
     <div
@@ -28,9 +18,7 @@ const Dashboard = () => {
           style={{ maxWidth: "100%" }}
         />
 
-        <h1 className="text-4xl font-bold mb-4">
-          Welcome to BaBa Express
-        </h1>
+        <h1 className="text-4xl font-bold mb-4">Welcome to BaBa Express</h1>
         <p className="text-lg mb-8">
           Book your bus tickets hassle-free with us!
         </p>
@@ -49,7 +37,7 @@ const Dashboard = () => {
                 Sign In
               </Link>
               <Link
-                to="/signup"
+                to="/register"
                 className="inline-block bg-gray-800 text-white px-6 py-3 rounded-lg"
               >
                 Sign Up

@@ -15,7 +15,7 @@ interface AirTableType {
     userId: string;
     routeId: string;
   }) => Promise<{ ticket: TicketType; success: boolean }>;
-  updateRoute: (
+  updateBusSeat: (
     route: RouteType,
     selectedSeat: string
   ) => Promise<{ success: boolean }>;
@@ -28,6 +28,14 @@ interface AirTableType {
     price: string;
   }) => Promise<{ success: boolean }>;
   deleteRoute: (routeId: string) => Promise<{ success: boolean }>;
+  updateRoute: (query: {
+    from: string;
+    to: string;
+    departureTime: string;
+    estimatedDuration: string;
+    price: string;
+    routeId: string;
+  }) => Promise<{ success: boolean }>;
 }
 
 const airtable = new Airtable({
@@ -177,7 +185,7 @@ export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
-  const updateRoute = (route: RouteType, selectedSeats: string) => {
+  const updateBusSeat = (route: RouteType, selectedSeats: string) => {
     return new Promise<{ success: boolean }>((resolve, reject) => {
       airtable("Route").update(
         [
@@ -375,15 +383,48 @@ export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const deleteRoute = (routeId: string) => {
     return new Promise<{ success: boolean }>((resolve, reject) => {
-      airtable("Route").destroy([routeId], (err, deletedRecords) => {
+      airtable("Route").destroy([routeId], (err) => {
         if (err) {
           reject({ success: false });
           return;
         }
-        console.log("Deleted", deletedRecords!.length, "records");
 
         resolve({ success: true });
       });
+    });
+  };
+
+  const updateRoute = (query: {
+    from: string;
+    to: string;
+    departureTime: string;
+    estimatedDuration: string;
+    price: string;
+    routeId: string;
+  }) => {
+    return new Promise<{ success: boolean }>((resolve, reject) => {
+      airtable("Route").update(
+        [
+          {
+            id: query.routeId,
+            fields: {
+              From: query.from,
+              To: query.to,
+              Departure_Time: query.departureTime,
+              Estimated_Duration: query.estimatedDuration,
+              Price: query.price,
+            },
+          },
+        ],
+        function (err) {
+          if (err) {
+            console.error(err);
+            reject({ success: false });
+            return;
+          }
+          resolve({ success: true });
+        }
+      );
     });
   };
 
@@ -396,10 +437,11 @@ export const AirTableProvider: React.FC<{ children: React.ReactNode }> = ({
         getRoutes,
         findRoute,
         createTicket,
-        updateRoute,
+        updateBusSeat,
         getTickets,
         createRoute,
         deleteRoute,
+        updateRoute,
       }}
     >
       {children}
