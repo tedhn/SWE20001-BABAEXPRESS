@@ -1,4 +1,4 @@
-import { Button, Modal, Paper, Text } from "@mantine/core";
+import { Button, Modal, Paper, Stepper, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -7,6 +7,9 @@ import { useAirTable } from "~/Context/AirTableContext";
 import { useUser } from "~/Context/UserContext";
 import { RouteType } from "~/type";
 import { formatDate } from "~/utils";
+import Payment from "../Auth/Payment";
+import { IconCircleCheckFilled } from "@tabler/icons-react";
+import Timer from "~/Components/Timer";
 
 const RouteDetails = () => {
   const navigate = useNavigate();
@@ -18,7 +21,11 @@ const RouteDetails = () => {
   const [route, setRoute] = useState<RouteType | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
   const [opened, { open, close }] = useDisclosure(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [duration, setDuration] = useState<number | null>(null);
+
+  const [active, setActive] = useState(0);
+  const nextStep = () =>
+    setActive((current) => (current < 2 ? current + 1 : current));
 
   useEffect(() => {
     if (!user) {
@@ -46,14 +53,30 @@ const RouteDetails = () => {
     }
   };
 
-  const handleConfirmBooking = async () => {
+  const handleShowModal = () => {
+    if (!user) {
+      navigate("/login");
+      toast.error("Please login to purchase tickets.");
+      return;
+    } else {
+      toast("Please pay for the tickets in 5 mins");
+      setDuration(300);
+      open();
+    }
+  };
+
+  const handleCloseModal = () => {
+    setActive(0);
+    setDuration(null);
+    close();
+  };
+
+  const handleSeatBooking = async () => {
     const query = {
       seatNumbers: selectedSeats.map((seat) => seat + ""),
       userId: user?.userId!,
       routeId: params.routeId!,
     };
-
-    setIsLoading(true);
 
     try {
       const { ticket } = await createTicket(query);
@@ -70,17 +93,7 @@ const RouteDetails = () => {
       console.log(e);
       toast.error("Ticket purchase Failed.");
     }
-    setIsLoading(false);
-  };
-
-  const handleShowModal = () => {
-    if (!user) {
-      navigate("/login");
-      toast.error("Please login to purchase tickets.");
-      return;
-    } else {
-      open();
-    }
+    nextStep();
   };
 
   if (route === null) {
@@ -159,46 +172,72 @@ const RouteDetails = () => {
         <Modal
           opened={opened}
           onClose={close}
-          size="md"
-          title="Bus Ticket"
+          title={
+            <div className="flex w-full gap-4">
+              <div className="">Bus Ticket</div>
+              {duration && <Timer initialMinutes={duration / 60} />}
+            </div>
+          }
+          size={"xl"}
           overlayProps={{ opacity: "0.7" }}
         >
           <Paper p="lg">
-            <div className="flex justify-between mb-4">
-              <Text fw={700}>Passenger Name:</Text>
-              <Text>{user.name}</Text>
-            </div>
-            <div className="flex justify-between mb-4">
-              <Text fw={700}>Route:</Text>
-              <Text>
-                {route.from} to {route.to}
-              </Text>
-            </div>
-            <div className="flex justify-between mb-4">
-              <Text fw={700}>Departure Time:</Text>
-              <Text>{formatDate(route?.departure_Time!, "h:mm a")}</Text>
-            </div>
-            <div className="flex justify-between mb-4">
-              <Text className="font-semibold">Departure Date: </Text>
-              <Text>{formatDate(route.departure_Time, "dd/MM/yyy")}</Text>
-            </div>
-            <div className="flex justify-between mb-4">
-              <Text fw={700}>Seat Number:</Text>
-              <Text>{selectedSeats.join(",")}</Text>
-            </div>
-            <div className="flex justify-between mb-4">
-              <Text fw={700}>Price:</Text>
-              <Text>RM{selectedSeats.length * +route.price}</Text>
-            </div>
-            <Button
-              fullWidth
-              loading={isLoading}
-              disabled={isLoading}
-              onClick={() => handleConfirmBooking()}
-              className="bg-blue-500"
-            >
-              Confirm
-            </Button>
+            <Stepper active={active} onStepClick={setActive} iconSize={32}>
+              <Stepper.Step label="Confirm Tickets">
+                <div className="flex justify-between mb-4">
+                  <Text fw={700}>Passenger Name:</Text>
+                  <Text>{user.name}</Text>
+                </div>
+                <div className="flex justify-between mb-4">
+                  <Text fw={700}>Route:</Text>
+                  <Text>
+                    {route.from} to {route.to}
+                  </Text>
+                </div>
+                <div className="flex justify-between mb-4">
+                  <Text fw={700}>Departure Time:</Text>
+                  <Text>{formatDate(route?.departure_Time!, "h:mm a")}</Text>
+                </div>
+                <div className="flex justify-between mb-4">
+                  <Text className="font-semibold">Departure Date: </Text>
+                  <Text>{formatDate(route.departure_Time, "dd/MM/yyy")}</Text>
+                </div>
+                <div className="flex justify-between mb-4">
+                  <Text fw={700}>Seat Number:</Text>
+                  <Text>{selectedSeats.join(",")}</Text>
+                </div>
+                <div className="flex justify-between mb-4">
+                  <Text fw={700}>Price:</Text>
+                  <Text>RM{selectedSeats.length * +route.price}</Text>
+                </div>
+
+                <Button onClick={nextStep} className="w-full">
+                  Next step
+                </Button>
+              </Stepper.Step>
+              <Stepper.Step label="Payment Info">
+                <Payment handleSeatBooking={handleSeatBooking} />
+              </Stepper.Step>
+              <Stepper.Step label="Success">
+                <div className="flex flex-col justify-center items-center py-16">
+                  <IconCircleCheckFilled color={"#3b82f6"} size={64} />
+                  <div className="text-center w-full">
+                    Ticket has been booked successfully
+                  </div>
+                </div>
+
+                <Button
+                  variant="filled"
+                  radius={"md"}
+                  color="#3b82f6"
+                  type="submit"
+                  onClick={handleCloseModal}
+                  className="w-full mt-4 "
+                >
+                  Close
+                </Button>
+              </Stepper.Step>
+            </Stepper>
           </Paper>
         </Modal>
       )}

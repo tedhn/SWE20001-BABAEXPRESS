@@ -33,7 +33,7 @@ const Route = () => {
     navigate(`/routes/${routeId}`);
   };
   const handleDelete = async () => {
-    setIsLoading(true);
+    setIsLoading(true); 
     const { success } = await deleteRoute(selectedRouteId);
 
     if (success) {
