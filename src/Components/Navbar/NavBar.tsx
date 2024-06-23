@@ -46,6 +46,14 @@ const NavBar = () => {
             handleClick={handleRouteChange}
           />
         )}
+
+        {user && user.type === "Admin" && (
+          <CustomNavLink
+            routeName="All Tickets"
+            active={active}
+            handleClick={handleRouteChange}
+          />
+        )}
       </div>
       {/* </div> */}
 

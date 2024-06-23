@@ -4,6 +4,8 @@ export interface UserType {
   email: string;
   type: string;
   password: string;
+  phone: string;
+  address: string;
 }
 
 export interface RegisterSuccessType {
@@ -19,6 +21,8 @@ export interface RouteType {
   estimated_Duration: string;
   price: string;
   bookedSeats: string;
+  pickUpLocation: string;
+  bus_number?: string;
 }
 
 export interface TicketType {

@@ -8,6 +8,7 @@ import { useUser } from "~/Context/UserContext";
 import { IconTrash } from "@tabler/icons-react";
 import toast from "react-hot-toast";
 import { useDisclosure } from "@mantine/hooks";
+import SearchBar from "~/Components/SearchBar";
 
 const Route = () => {
   const navigate = useNavigate();
@@ -15,9 +16,10 @@ const Route = () => {
   const { getRoutes, deleteRoute } = useAirTable();
 
   const [routes, setRoutes] = useState<RouteType[]>([]);
+  const [filteredRoute, setFilteredRoute] = useState<RouteType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [opened, { open, close }] = useDisclosure(false);
-  const [selectedRouteId, setSelectedRoutedId] = useState<string>("");
+  const [selectedRouteId, setSelectedRouteId] = useState<string>("");
 
   useEffect(() => {
     setIsLoading(true);
@@ -25,6 +27,7 @@ const Route = () => {
       const { data } = await getRoutes();
 
       setRoutes(data);
+      setFilteredRoute(data);
       setIsLoading(false);
     })();
   }, []);
@@ -33,7 +36,7 @@ const Route = () => {
     navigate(`/routes/${routeId}`);
   };
   const handleDelete = async () => {
-    setIsLoading(true); 
+    setIsLoading(true);
     const { success } = await deleteRoute(selectedRouteId);
 
     if (success) {
@@ -45,6 +48,23 @@ const Route = () => {
 
     close();
     setIsLoading(false);
+  };
+
+  const onSearch = (query: string) => {
+    // Implement your search logic here
+
+    if (query === "") {
+      setFilteredRoute(routes);
+      return;
+    }
+
+    setFilteredRoute(
+      routes.filter(
+        (route) =>
+          route.from.toLowerCase().includes(query.toLowerCase()) ||
+          route.to.toLowerCase().includes(query.toLowerCase())
+      )
+    );
   };
 
   if (isLoading) {
@@ -63,19 +83,21 @@ const Route = () => {
           Add Route
         </Button>
       ) : (
-        <Text className="mx-auto text-3xl pt-8 pb-12 font-bold">
+        <Text className="mx-auto text-3xl py-8 font-bold">
           Find Routes Today
         </Text>
       )}
 
+      <SearchBar onSearch={onSearch} />
+
       <div className="grid grid-cols-4 gap-4">
-        {routes.map((route) => (
+        {filteredRoute.map((route) => (
           <RouteCard
             route={route}
             handleNavigate={handleNavigate}
             openDeleteConfirmationModal={() => {
               open();
-              setSelectedRoutedId(route.route_Id);
+              setSelectedRouteId(route.route_Id);
             }}
             key={route.route_Id}
           />

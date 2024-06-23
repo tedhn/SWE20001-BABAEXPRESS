@@ -10,6 +10,8 @@ type RegisterFormType = {
   email: string;
   name: string;
   password: string;
+  phone: string;
+  address: string;
 };
 
 const Register = () => {
@@ -26,13 +28,15 @@ const Register = () => {
   } = useForm<RegisterFormType>();
 
   const handleRegister: SubmitHandler<RegisterFormType> = async (data) => {
-    const { email, name, password } = data;
+    const { email, name, password, address, phone } = data;
     setIsLoading(true);
     try {
       createUser({
         Name: name,
         Password: password,
         Email: email,
+        Phone: phone,
+        Address: address,
       });
       const user = await loginUser(email, password);
 
@@ -41,6 +45,8 @@ const Register = () => {
         email: user.email,
         type: user.type,
         userId: user.userId,
+        address: user.address,
+        phone: user.phone,
       });
       toast.success("User account created successfully");
       navigate("/dashboard");
@@ -75,6 +81,18 @@ const Register = () => {
         className="w-full"
         {...register("password", { required: true })}
         error={errors.password ? "This field is required" : false}
+      />
+      <TextInput
+        placeholder="Phone"
+        className={"w-full"}
+        {...register("phone", { required: true })}
+        error={errors.phone ? "This field is required" : false}
+      />
+      <TextInput
+        placeholder="Address"
+        className={"w-full"}
+        {...register("address", { required: true })}
+        error={errors.address ? "This field is required" : false}
       />
       <Button
         variant="filled"

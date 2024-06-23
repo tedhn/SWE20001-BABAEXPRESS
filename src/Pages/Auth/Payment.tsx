@@ -1,4 +1,4 @@
-import  { FC } from "react";
+import { FC } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   PaymentElement,
@@ -10,9 +10,7 @@ import { Button } from "@mantine/core";
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
-const stripePromise = loadStripe(
-  "pk_test_51PPzaYRwFCy7xW050lsKhrB7Vh7U4ZyZzGbtdovOcWivhL7XsYb11LZIw0Qha0kvb1cAYWkAgskIQAiShovvyzEL00NvwehsOF"
-);
+const stripePromise = loadStripe(import.meta.env.VITE_AIRTABLE_PRIVATE_KEY);
 const options = {
   mode: "payment",
   amount: 1099,

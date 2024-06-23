@@ -1,11 +1,12 @@
 import { Button, Modal, Paper, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAirTable } from "~/Context/AirTableContext";
 import { useUser } from "~/Context/UserContext";
 import { RouteType, TicketType } from "~/type";
 import { formatDate } from "~/utils";
+import TicketCard from "./TicketCard";
 
 const MyTickets = () => {
   const navigate = useNavigate();
@@ -27,8 +28,6 @@ const MyTickets = () => {
 
       (async () => {
         const { data } = await getTickets(user.userId);
-
-        console.log(data);
 
         setTickets(data);
         setIsLoading(false);
@@ -63,8 +62,6 @@ const MyTickets = () => {
           >
             Book Now
           </Button>
-
-          
         </div>
       ) : (
         tickets.map((ticket) => (
@@ -117,6 +114,14 @@ const MyTickets = () => {
               <Text fw={700}>Seat Number:</Text>
               <Text>{selectedTicket.ticketInfo.seat_numbers}</Text>
             </div>
+            <div className="flex justify-between mb-4">
+              <Text fw={700}>Bus Number:</Text>
+              <Text>{selectedTicket.routeInfo.bus_number}</Text>
+            </div>
+            <div className="flex justify-between mb-4">
+              <Text fw={700}>Pick Up Location:</Text>
+              <Text>{selectedTicket.routeInfo.pickUpLocation}</Text>
+            </div>
             {/* <div className="flex justify-between mb-4">
               <Text fw={700}>Price:</Text>
               <Text>
@@ -138,71 +143,6 @@ const MyTickets = () => {
         </Modal>
       )}
     </div>
-  );
-};
-
-const TicketCard = ({
-  ticket,
-  setSelectedTicket,
-}: {
-  ticket: TicketType;
-  setSelectedTicket: React.Dispatch<
-    SetStateAction<{
-      ticketInfo: TicketType;
-      routeInfo: RouteType;
-    } | null>
-  >;
-}) => {
-  const { findRoute } = useAirTable();
-  const [route, setRoute] = useState<RouteType | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    setIsLoading(true);
-    (async () => {
-      const { data } = await findRoute(ticket.route_id[0]);
-
-      setRoute(data);
-      setIsLoading(false);
-    })();
-  }, []);
-
-  return (
-    <Paper
-      p="md"
-      shadow="sm"
-      className="w-full mx-auto flex items-center space-x-4"
-    >
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : (
-        <>
-          <div className="flex-grow">
-            <Text fw={700} size="xl">
-              {route?.from} - {route?.to}
-            </Text>
-            <Text size="sm" c="gray">
-              Departure Date:{" "}
-              {formatDate(route ? route.departure_Time : Date(), "dd/MM/yyy")}
-            </Text>
-            <Text size="sm" c="gray">
-              Seat Number(s): {ticket.seat_numbers}
-            </Text>
-          </div>
-          <div className="flex-shrink-0">
-            <Button
-              variant="outline"
-              color="blue"
-              onClick={() =>
-                setSelectedTicket({ ticketInfo: ticket, routeInfo: route! })
-              }
-            >
-              View Ticket
-            </Button>
-          </div>
-        </>
-      )}
-    </Paper>
   );
 };
 

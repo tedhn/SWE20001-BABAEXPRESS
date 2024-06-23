@@ -1,7 +1,6 @@
 import { lazy, Suspense } from "react";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Payment from "./Pages/Auth/Payment";
 
 const Login = lazy(() => import("./Pages/Auth/Login"));
 const LayoutContainer = lazy(() => import("./Layout"));
@@ -12,6 +11,7 @@ const RouteDetails = lazy(() => import("./Pages/Route/RouteDetails"));
 const MyTickets = lazy(() => import("./Pages/Tickets/MyTickets"));
 const RouteCreate = lazy(() => import("./Pages/Route/RouteCreate"));
 const RouteEdit = lazy(() => import("./Pages/Route/RouteEdit"));
+const AllTickets = lazy(() => import("./Pages/Tickets/AllTickets"));
 
 const SusWrapper = ({ component }: { component: React.ReactNode }) => {
   return <Suspense fallback={<div>Loading...</div>}>{component}</Suspense>;
@@ -52,9 +52,11 @@ const router = createBrowserRouter([
           },
         ],
       },
-
-      { path: "payment", element: <SusWrapper component={<Payment />} /> },
       { path: "my-tickets", element: <SusWrapper component={<MyTickets />} /> },
+      {
+        path: "all-tickets",
+        element: <SusWrapper component={<AllTickets />} />,
+      },
     ],
   },
 ]);

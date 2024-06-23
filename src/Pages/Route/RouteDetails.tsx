@@ -125,6 +125,10 @@ const RouteDetails = () => {
             <span className="font-semibold">Estimated Duration: </span>
             {route?.estimated_Duration} Hrs
           </div>
+          <div className="mb-4">
+            <span className="font-semibold">Pick Up Location: </span>
+            {route?.pickUpLocation} Hrs
+          </div>
 
           <div className="mb-4">
             <span className="font-semibold">Price:</span> {route?.price} RM
