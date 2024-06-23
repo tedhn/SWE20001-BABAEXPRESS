@@ -44,6 +44,8 @@ const Login = () => {
         email: user.email,
         type: user.type,
         userId: user.userId,
+        address: user.address,
+        phone: user.phone,
       });
       toast.success("Logged in successfully");
       localStorage.setItem("user", JSON.stringify(user));
